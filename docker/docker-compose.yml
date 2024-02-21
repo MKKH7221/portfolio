@@ -1,0 +1,59 @@
+
+#
+# after changing this file, to update docker 
+# docker-compose up -d --build
+# mysql -u root -p
+#
+#
+version: '3.6'
+services:
+# --
+  mysql:
+    container_name: mysql
+    build: ./mysql
+    environment:
+
+      MYSQL_DATABASE: testdb
+      MYSQL_ROOT_USER: "root" 
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      # 名前付きボリュームでデータの保存先をマウントする：名前は最後に指定している = docker側に保存している
+      - mysql_db:/var/lib/mysql
+      # 初期データを投入するSQLが格納されているdir       
+      - ./mysql/init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./mysql/data:/docker-entrypoint-initdb.d
+# --
+  backend:
+    container_name: backend
+    build: ./spring
+    # mysqlの後で起動
+    depends_on: 
+      - mysql
+    ports:
+      - "8080:8080"
+    tty: true
+    volumes:
+      - ../spring_project:/srv:cached
+    working_dir: /srv
+# --
+  frontend:
+    container_name: frontend
+    build: ./vue
+    ports:
+      - 9000:8080
+    volumes:
+      - ../vue_project:/usr/src/app:cached
+    stdin_open: true
+    tty: true
+
+
+# ボリューム設定
+volumes:
+  # MySQLでのデータ永続化先を指定
+  mysql_db:
+    driver: local
+
