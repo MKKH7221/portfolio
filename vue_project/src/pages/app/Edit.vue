@@ -14,7 +14,7 @@
                     <!-- name -->
                     <div class="form-group" :class="{ error: v$.form.name.$errors.length }">
                         <label for="">Name</label>
-                        <input class="form-control" placeholder="Enter your username" type="name" v-model="v$.form.name.$model">
+                        <input class="form-control" type="name" v-model="v$.form.name.$model">
                         <!-- <div class="pre-icon os-icon os-icon-user-male-circle"></div> -->
                         <div class="input-errors" v-for="(error, index) of v$.form.name.$errors" :key="index">
                             <div class="error-msg">{{ error.$message }}</div>
@@ -24,7 +24,7 @@
                     <!-- address -->
                     <div class="form-group" :class="{ error: v$.form.address.$errors.length }">
                         <label for="">Address</label>
-                        <input class="form-control" placeholder="Enter your address" type="address" v-model="v$.form.address.$model">
+                        <input class="form-control" type="address" v-model="v$.form.address.$model">
                         <div class="input-errors" v-for="(error, index) of v$.form.address.$errors" :key="index">
                             <div class="error-msg">{{ error.$message }}</div>
                         </div>
@@ -33,7 +33,7 @@
                     <!-- tel -->
                     <div class="form-group" :class="{ error: v$.form.tel.$errors.length }">
                         <label for="">Tel</label>
-                        <input class="form-control" placeholder="Enter your tel" type="tel" v-model="v$.form.tel.$model">
+                        <input class="form-control"  type="tel" v-model="v$.form.tel.$model">
                         <!-- error message -->
                         <div class="input-errors" v-for="(error, index) of v$.form.tel.$errors" :key="index">
                             <div class="error-msg">{{ error.$message }}</div>
@@ -44,7 +44,7 @@
                     <div class="form-group" :class="{ error: v$.form.country.code.$errors.length }">
                         <label for="">Country</label>
                         <select class="form-control" type="country.code" v-model="v$.form.country.code.$model">
-                            <option value="" placeholder="Select a country" > Select a country </option>
+                            <option value="" > Select a country </option>
                             <option v-for="country in countryList" 
                                 v-bind:key="country.code" v-bind:value="country.code">
                                 {{ country.name }}

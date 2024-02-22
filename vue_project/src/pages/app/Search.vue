@@ -39,7 +39,7 @@
         </dev>    
         <br>
         <br>
-        <!-- for message -->
+        <!-- Message -->
         <div v-show="message" class="alert alert-success">{{ message }}</div>
         <div v-show="errMessage" class="alert alert-danger">{{errMessage}}</div>
         <!-- user List -->
@@ -63,20 +63,21 @@
                     <td>{{user.tel}}</td>
                     <td>{{user.country.name}}</td>
                     <td>
-                        <button @click="() => $router.push({ name: 'Edit', params: { id: user.id } })" 
-                            type="button" class="btn btn-primary">Edit
-                        </button>
+                        <a href="#" @click.stop.prevent="() => $router.push({ name: 'Edit', params: { id: user.id } })"  >
+                            <span class="material-symbols-outlined">edit</span>
+                        </a>
                     </td>
-                    <td>    
-                        <button @click="deleteUser(user.id, user.name)" type="button" 
-                        class="btn btn-primary">Delete</button>
+                    <td> 
+                        <a href="#" @click.stop.prevent="deleteUser(user.id, user.name)" >
+                            <span class="material-symbols-outlined">delete</span>
+                        </a>
                     </td>
                 </tr>   
             </tbody>
         </table>
-        <span>
+        <!-- <span>
             <button @click="()=>$router.push({ name: 'Add'})" type="button" class="btn btn-primary"> User Add </button>
-        </span>
+        </span> -->
     </div>
 </template>
 <script>

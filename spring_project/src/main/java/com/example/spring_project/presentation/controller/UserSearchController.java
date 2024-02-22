@@ -19,7 +19,7 @@ import com.example.spring_project.domain.model.user.NewUser;
 import com.example.spring_project.domain.model.user.SearchUser;
 import com.example.spring_project.domain.model.user.User;
 
-@RestController // @ResponseBodyを全てのクラスに付与する必要がなくなります
+@RestController
 @CrossOrigin(origins = {"http://localhost:9000"})
 public class UserSearchController {
     
@@ -57,7 +57,6 @@ public class UserSearchController {
         return result;
     }
 
-    // validate
     @PostMapping("/update")
     public User update(@RequestBody User user){
         System.out.println(user);
@@ -66,7 +65,6 @@ public class UserSearchController {
         return updatedUser;
     }
 
-    // validate
     @PostMapping("/add")
     public void add(@RequestBody NewUser newUser){
         System.out.println(newUser.toString());

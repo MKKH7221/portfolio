@@ -29,25 +29,19 @@ These additional references should also help you:
 * [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
 
 
-「ユーザー管理システムを作成する」
-Dockerコンテナ上に、mysql、SpringBoot、Vue
-ビルド環境はGradle
-DDD、TDDをベースにする
+## ユーザー管理システムを作成する
+- Dockerコンテナ上に、mysql、SpringBoot、Vue
+- ビルド環境はGradle
+- DDD、TDD（Junitを使用）をベースにする
 
-※要件　
-○　登録されているユーザの一覧を表示すること
-　ユーザーの絞り込み検索ができること
-○　新規ユーザの登録ができること
-○　ユーザー情報の変更ができること
+## 要件　
+- 登録されているユーザの一覧を表示すること
+- ユーザーの絞り込み検索ができること
+- 新規ユーザーの登録ができること
+    バリデーション
+- ユーザー情報の変更ができること
+    バリデーション
 
-※追加要件
-ー　Spring Securityにてログイン画面を追加する
-ー　ユーザーを20件毎に表示する
-
-※ユーザ情報として以下を表示する
-　名前
-　住所
-　電話番号
-　国
-　更新日
-  登録日
+## 追加要件
+-　Spring Securityにてログイン画面を追加する
+-　ページング処理
