@@ -1,10 +1,3 @@
-
-#
-# after changing this file, to update docker 
-# docker-compose up -d --build
-# mysql -u root -p
-#
-#
 version: '3.6'
 services:
 # --
@@ -24,8 +17,7 @@ services:
       # 名前付きボリュームでデータの保存先をマウントする：名前は最後に指定している = docker側に保存している
       - mysql_db:/var/lib/mysql
       # 初期データを投入するSQLが格納されているdir       
-      - ./mysql/init/init.sql:/docker-entrypoint-initdb.d/init.sql
-      # - ./mysql/data:/docker-entrypoint-initdb.d
+      - ./mysql/data:/docker-entrypoint-initdb.d
 # --
   backend:
     container_name: backend
