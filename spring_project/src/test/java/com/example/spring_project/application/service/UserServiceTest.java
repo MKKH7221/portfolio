@@ -2,7 +2,7 @@ package com.example.spring_project.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.spring_project.domain.errors.UserNotFoundException;
 import com.example.spring_project.domain.model.country.Country;
 import com.example.spring_project.domain.model.user.NewUser;
 import com.example.spring_project.domain.model.user.SearchUser;
@@ -32,7 +33,7 @@ public class UserServiceTest {
 
     @Test
     @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void add_CanAddNewUser() {
+    void add_success() {
         NewUser testUser1 = new NewUser("Sada Masashi", "via spring 123", "12345","JPN");
         userService.add(testUser1);
 
@@ -50,7 +51,7 @@ public class UserServiceTest {
 
     @Test
     @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void delete_CanDeleteUserById() {
+    void delete_success() {
         NewUser user1 = new NewUser("Sada Masashi", "via spring 123", "12345","ITA");
         userService.add(user1);
 
@@ -64,7 +65,7 @@ public class UserServiceTest {
 
     @Test
     @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void delete_CanDeleteUserCorrectlyWhenTableHasMultipulData() {
+    void delete_success_with_multipul_data() {
         NewUser user1 = new NewUser("Sada Masashi 1", "via spring 123", "12345","JPN");
         NewUser user2 = new NewUser("Sada Masashi 2", "via spring 456", "12345","ITA");
         NewUser user3 = new NewUser("Sada Masashi 3", "via spring 789", "12345","GRC");
@@ -73,16 +74,16 @@ public class UserServiceTest {
         userService.add(user3);
         
         List<User> newUsers = userService.findAll();
-
         userService.delete(newUsers.get(0).id());
-        User actual = userService.findById(newUsers.get(0).id());
-        // int expected = 2;
-        assertNull(actual);
+
+        assertThrows(UserNotFoundException.class, () -> {
+            userService.findById(newUsers.get(0).id());
+        });
     }
 
     @Test
     @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_CanFindUserUseById() {
+    void findById_success() {
         NewUser user = new NewUser("Sada Masashi", "via spring 123", "12345","ITA");
         userService.add(user);
         User expected = userService.findAll().get(0);
@@ -96,9 +97,19 @@ public class UserServiceTest {
             () -> assertEquals(expected.country().code(), actual.country().code())
         );
     }
+
     @Test
     @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_CanFindUserByIdWhenTableHasMultipulData() {
+    void findById_exception_userNotFound() {
+
+        assertThrows(UserNotFoundException.class, () -> {
+            userService.findById(9999);
+        });
+    }
+
+    @Test
+    @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
+    void findById_success_WhenTableHasMultipulData() {
         NewUser user1 = new NewUser("Sada Masashi 1", "via spring 123", "12345","GRC");
         NewUser user2 = new NewUser("Sada Masashi 2", "via spring 456", "12345","ESP");
         NewUser user3 = new NewUser("Sada Masashi 3", "via spring 789", "12345","JPN");
@@ -121,7 +132,7 @@ public class UserServiceTest {
 
     @Test
     @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void update_CanUpdateUser_Name_Adderss_tel_country() {
+    void update_success_CanUpdateUser_Name_Adderss_tel_country() {
         NewUser user1 = new NewUser("Sada Masashi", "via spring 123", "12345","ESP");
         userService.add(user1);
         User newUser = userService.findAll().get(0);
@@ -146,11 +157,9 @@ public class UserServiceTest {
         );
     }
 
-// ---------------
-// ---------------
-    @Test
+@Test
     @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void update_CanUpdateUserInformationCorrectllyWhenTableHasMultipulData() {
+    void update_success_CanUpdateUserCorrectllyWhenTableHasMultipulData() {
         NewUser user = new NewUser("Sada Masashi 1", "via spring 123", "12345","ESP");
         NewUser user1 = new NewUser("Sada Masashi 2", "via spring 123", "12345","JPN");
         NewUser user2 = new NewUser("Sada Masashi 3", "via spring 123", "12345","ITA");
@@ -177,9 +186,10 @@ public class UserServiceTest {
         );
     }
 
+    // Search Condition Test
     @Test
     @Sql("/test.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_Condition_id() {
+    void findByCondition_Condition_id() {
         NewUser user = new NewUser("Sada Masashi 1", "via spring 123", "12345","ESP");
         NewUser user1 = new NewUser("Sada Masashi 2", "via spring 123", "12345","JPN");
         NewUser user2 = new NewUser("Sada Masashi 3", "via spring 123", "12345","ITA");
@@ -204,18 +214,17 @@ public class UserServiceTest {
 
     @Test
     @Sql("/test_insert_user_list.sql")
-    void findById_Condition_name() {
+    void findByCondition_Condition_name() {
         List<User> userList = userService.findAll();
         List<User> targetUserList = userList.stream().
-            filter(user -> user.name().equals("Masashi Sada")).collect(Collectors.toList());
-        System.out.println(targetUserList);
-        // 検索結果
-        // ("Masashi Sada", "via Osaka 456, Osaka", "123457890","JPN");
-        // ("Masashi Sada", "via Kyoto 456, Tokyo", "123457890","JPN");
-        String expected1 = createExpectedUserToString(targetUserList.get(0));
-        String expected2 = createExpectedUserToString(targetUserList.get(1));
+            filter(user -> user.name().contains("Masashi")).
+            collect(Collectors.toList());
 
-        SearchUser condition = new SearchUser(null, "Masashi Sada", null, null, null);
+        System.out.println(targetUserList);
+        String expected1 = targetUserList.get(0).toString();
+        String expected2 = targetUserList.get(1).toString();
+
+        SearchUser condition = new SearchUser(null, "Masashi", null, null, null);
         List<User> actual = userService.findByCondition(condition);
         Integer expected = 2; 
         assertThat(actual.size(), is(expected));
@@ -225,35 +234,37 @@ public class UserServiceTest {
     }
     @Test
     @Sql("/test_insert_user_list.sql")
-    void findById_Condition_address() {
-        // INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Nalendora Modhi", "via winter 123, New Delhi", "678912345","IND");
+    void findByCondition_Condition_address() {
 
-        User targetUser = userService.findAll().get(6);
+        String address = "Tokyo";
+        List<User> userList = userService.findAll();
+        List<User> targetUserList = userList.stream().
+        filter(user -> user.address().contains(address)).collect(Collectors.toList());
+        String expected1 = targetUserList.get(0).toString();
+        String expected2 = targetUserList.get(1).toString();
+
         // SearchCondition id
-        SearchUser condition = new SearchUser(null, targetUser.name(), null, null, null);
+        SearchUser condition = new SearchUser(null, null, address, null, null);
         List<User> actual = userService.findByCondition(condition);
-        Integer expectedSize = 1; 
-        String expected = createExpectedUserToString(targetUser); 
+        Integer expectedSize = 2; 
         assertThat(actual.size(), is(expectedSize));
-        assertThat(actual.get(0).toString(), is(expected));
+        assertThat(actual.get(0).toString(), is(expected1));
+        assertThat(actual.get(１).toString(), is(expected2));
     }
     @Test
     @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_Condition_tel_123457890() {
+    void findByCondition_Condition_tel_123457890() {
+        String searchTel = "123457";
         List<User> userList = userService.findAll();
         List<User> targetUserList = userList.stream().
-            filter(user -> user.tel().equals("123457890")).collect(Collectors.toList());
+            filter(user -> user.tel().contains(searchTel)).collect(Collectors.toList());
 
-// INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Masashi Sada", "via Osaka 456, Osaka", "123457890","JPN");
-// INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Shinji Tanimura", "via Tokyo 456, Tokyo", "123457890","JPN");
-// INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Masashi Sada", "via Kyoto 456, Tokyo", "123457890","JPN");
-
-        SearchUser condition = new SearchUser(null, null, null, "123457890", null);
+        SearchUser condition = new SearchUser(null, null, null, searchTel, null);
         List<User> actual = userService.findByCondition(condition);
         Integer expectedSize = 3; 
-        String expected1 = createExpectedUserToString(targetUserList.get(0)); 
-        String expected2 = createExpectedUserToString(targetUserList.get(1)); 
-        String expected3 = createExpectedUserToString(targetUserList.get(2)); 
+        String expected1 = targetUserList.get(0).toString(); 
+        String expected2 = targetUserList.get(1).toString(); 
+        String expected3 = targetUserList.get(2).toString(); 
         assertThat(actual.size(), is(expectedSize));
         assertThat(actual.get(0).toString(), is(expected1));
         assertThat(actual.get(1).toString(), is(expected2));
@@ -261,19 +272,18 @@ public class UserServiceTest {
     }
     @Test
     @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_Condition_country_ITA() {
+    void findByCondition_Condition_country_ITA() {
+        String country = "ITA";
         List<User> userList = userService.findAll();
-        // INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Galileo Galilei", "via winter 123, Rome", "678912345","ITA");
-        // INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Leonardo da Vinci", "via summer 789, Firenze", "789123456","ITA");        
         List<User> targetUserList = userList.stream().
-            filter(user -> user.country().code().equals("ITA")).collect(Collectors.toList());
+            filter(user -> user.country().code().equals(country)).collect(Collectors.toList());
 
-        SearchUser condition = new SearchUser(null, null, null, null, "ITA");
+        SearchUser condition = new SearchUser(null, null, null, null, country);
         List<User> actual = userService.findByCondition(condition);
 
         Integer expectedSize = 2; 
-        String expected1 = createExpectedUserToString(targetUserList.get(0)); 
-        String expected2 = createExpectedUserToString(targetUserList.get(1)); 
+        String expected1 = targetUserList.get(0).toString(); 
+        String expected2 = targetUserList.get(1).toString(); 
         assertThat(actual.size(), is(expectedSize));
         assertThat(actual.get(0).toString(), is(expected1));
         assertThat(actual.get(1).toString(), is(expected2));
@@ -281,29 +291,28 @@ public class UserServiceTest {
     // id_name_address_tel_country
     @Test
     @Sql("/test_insert_user_list.sql")
-    void findById_Condition_all() {
+    void findByCondition_Condition_all() {
+        String name = "Galileo";
+        String address = "Rome";
+        String tel = "678";
+        String country = "ITA";
+
         List<User> userList = userService.findAll();
         List<User> targetUserList = userList.stream().
-            filter(user -> user.name().equals("Galileo Galilei")).
-            filter(user -> user.address().equals("via winter 123, Rome")).
-            filter(user -> user.tel().equals("678912345")).
-            filter(user -> user.country().code().equals("ITA")).
+            filter(user -> user.name().contains(name)).
+            filter(user -> user.address().contains(address)).
+            filter(user -> user.tel().contains(tel)).
+            filter(user -> user.country().code().equals(country)).
             collect(Collectors.toList());
 
         // 検索対象ユーザ
-        // INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Galileo Galilei", "via winter 123, Rome", "678912345","ITA");
-        SearchUser condition = new SearchUser(targetUserList.get(0).id(), 
-            targetUserList.get(0).name(), 
-            targetUserList.get(0).address(), 
-            targetUserList.get(0).tel(), 
-            targetUserList.get(0).country().code());
+        SearchUser condition = new SearchUser(targetUserList.get(0).id(), name, address, tel, country); 
         
         // 検索    
         List<User> actual = userService.findByCondition(condition);
         // 検証
         Integer expectedSize = 1;
-        String expected = createExpectedUserToString(targetUserList.get(0));
-
+        String expected = targetUserList.get(0).toString();
         assertThat(actual.size(), is(expectedSize));
         assertThat(actual.get(0).toString(), is(expected));
     }
@@ -311,20 +320,21 @@ public class UserServiceTest {
     // id_name
     @Test
     @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_Condition_IdAndName() {
+    void findByCondition_Condition_IdAndName() {
+        String name = "Modhi";
         // INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Nalendora Modhi", "via winter 123, New Delhi", "678912345","IND");
         // 検索対象ユーザ
         List<User> userList = userService.findAll();
         List<User> targetUserList = userList.stream().
-            filter(user -> user.name().equals("Nalendora Modhi")).
+            filter(user -> user.name().contains(name)).
             collect(Collectors.toList());
         // 検索条件指定
-        SearchUser condition = new SearchUser(targetUserList.get(0).id(),targetUserList.get(0).name(), null, null, null);
+        SearchUser condition = new SearchUser(targetUserList.get(0).id(),name, null, null, null);
         // 検索    
         List<User> actual = userService.findByCondition(condition);
         // 検証
         Integer expectedSize = 1; 
-        String expected = createExpectedUserToString(targetUserList.get(0));
+        String expected = targetUserList.get(0).toString();
         
         assertThat(actual.size(), is(expectedSize));
         assertThat(actual.get(0).toString(), is(expected));
@@ -333,22 +343,29 @@ public class UserServiceTest {
     // address_country
     @Test
     @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_Condition_AddressAndCountry() {
+    void findByCondition_Condition_AddressAndCountry() {
         // 検索対象ユーザ
         //  ("Masashi Sada", "via Osaka 456, Osaka", "123457890","JPN");
+        String address = "Osaka";
+        String country = "JPN";
         List<User> userList = userService.findAll();
+        for (User u : userList) {
+            System.out.println(u.toString());
+        }
+
         List<User> targetUserList = userList.stream().
-            filter(user -> user.address().equals("via Osaka 456, Osaka")).
-            filter(user -> user.country().code().equals("JPN")).
+            filter(user -> user.address().contains(address)).
+            filter(user -> user.country().code().equals(country)).
             collect(Collectors.toList());
+            System.out.println("targetUserList :" + targetUserList.size());
+            
         // 検索条件指定
-        SearchUser condition = new SearchUser(null, null, "via Osaka 456, Osaka", null, "JPN");
+        SearchUser condition = new SearchUser(null, null, address, null, country);
         // 検索    
         List<User> actual = userService.findByCondition(condition);
         // 検証
         Integer expectedSize = 1; 
-        String expected = createExpectedUserToString(targetUserList.get(0));
-        
+        String expected = targetUserList.get(0).toString();        
         assertThat(actual.size(), is(expectedSize));
         assertThat(actual.get(0).toString(), is(expected));
     }
@@ -356,82 +373,109 @@ public class UserServiceTest {
     // id_name_address
     @Test
     @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_Condition_IdNameAddress() {
-        // 検索対象ユーザ
-        // INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Galileo Galilei", "via winter 123, Tange", "678912345","ESP");
+    void findByCondition_Condition_IdNameAddress() {
+        String name = "Galileo";
+        String address = "Tange";
         List<User> userList = userService.findAll();
-        List<User> targetUserList = userList.stream().
-            filter(user -> user.name().equals("Galileo Galilei")).
-            filter(user -> user.address().equals("via winter 123, Tange")).
+        List<User> expected = userList.stream().
+            filter(user -> user.name().contains(name)).
+            filter(user -> user.address().contains(address)).
             collect(Collectors.toList());
 
-        SearchUser condition = new SearchUser(targetUserList.get(0).id(), targetUserList.get(0).name(), 
-            targetUserList.get(0).address(), null, null);
+        SearchUser condition = new SearchUser(expected.get(0).id(), name, address, null, null);
         // 検索    
         List<User> actual = userService.findByCondition(condition);
         // 検証
         Integer expectedSize = 1; 
-        String expected = createExpectedUserToString(targetUserList.get(0));
         assertThat(actual.size(), is(expectedSize));
-        assertThat(actual.get(0).toString(), is(expected));
+        assertThat(actual.get(0).toString(), is(expected.get(0).toString()));
     }
 
     // name_address_tel
     @Test
     @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_Condition_NameAddressTel() {
+    void findByCondition_Condition_NameAddressTel() {
+        String name ="Gandhi";
+        String address ="Rishikesh";
+        String tel = "912";
+
         // 検索対象ユーザ
         // INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Mahatoma Gandhi", "via winter 123, Rishikesh", "338912345","IND");
         List<User> userList = userService.findAll();
         List<User> expected = userList.stream().
-            filter(user -> user.name().equals("Mahatoma Gandhi")).
-            filter(user -> user.address().equals("via winter 123, Rishikesh")).
-            filter(user -> user.tel().equals("338912345")).
+            filter(user -> user.name().contains(name)).
+            filter(user -> user.address().contains(address)).
+            filter(user -> user.tel().contains(tel)).
             collect(Collectors.toList());
 
-        SearchUser condition = new SearchUser(null, expected.get(0).name(), 
-            expected.get(0).address(), expected.get(0).tel(), null);
+        SearchUser condition = new SearchUser(null, name, address, tel, null);
         // 検索    
         List<User> actual = userService.findByCondition(condition);
         // 検証
         Integer expectedSize = 1; 
-        String expected1 = createExpectedUserToString(expected.get(0));
         assertThat(actual.size(), is(expectedSize));
-        assertThat(actual.get(0).toString(), is(expected1));
+        assertThat(actual.get(0).toString(), is(expected.get(0).toString()));
     }
 
     // address_tel_coutry
     @Test
     @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
-    void findById_Condition_AddressTelCountry() {
+    void findByCondition_Condition_AddressTelCountry() {
+        String address = "Rishikesh";
+        String tel = "891";
+        String country = "IND";
         // 検索対象ユーザ
         // INSERT INTO testdb.user( name, address, tel, country ) VALUES ("Mahatoma Gandhi", "via winter 123, Rishikesh", "338912345","IND");
         List<User> userList = userService.findAll();
         List<User> expected = userList.stream().
-            filter(user -> user.address().equals("via winter 123, Rishikesh")).
-            filter(user -> user.tel().equals("338912345")).
-            filter(user -> user.country().code().equals("IND")).
+            filter(user -> user.address().contains(address)).
+            filter(user -> user.tel().contains(tel)).
+            filter(user -> user.country().code().equals(country)).
             collect(Collectors.toList());
 
-        SearchUser condition = new SearchUser(null, null, 
-            expected.get(0).address(), expected.get(0).tel(), expected.get(0).country().code());
+        SearchUser condition = new SearchUser(null, null, address, tel, country);
         // 検索    
         List<User> actual = userService.findByCondition(condition);
         // 検証
         Integer expectedSize = 1; 
-        String expected1 = createExpectedUserToString(expected.get(0));
+        String expected1 = expected.get(0).toString();
         assertThat(actual.size(), is(expectedSize));
         assertThat(actual.get(0).toString(), is(expected1));
     }
 
-    private String createExpectedUserToString(User user) {
+    // 更新時のエラー　 存在しないユーザーID　
+    @Test
+    @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
+    void updateError_userNotFound() {
+        User user = new User (9999, 
+                    "Test User", 
+                    "12 Test Address", 
+                    "1234498432", 
+                    new Country("Japan", "JPN"));
 
-        return "User[id=" + user.id() 
-        + ", name=" + user.name() 
-        + ", address="+ user.address() 
-        + ", tel=" + user.tel() 
-        +", country=Country[name="+ user.country().name()
-                        +", code="+user.country().code()+"]]";
-
+        assertThrows(UserNotFoundException.class, () -> {
+            userService.update(user);
+        });
     }
+
+    // 削除時のエラー 存在しないユーザーID　
+    @Test
+    @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
+    void delete_Error_userNotFound() {
+        assertThrows(UserNotFoundException.class, () -> {
+            userService.delete(9999);
+        });
+    }
+
+    // ID検索時のエラー 存在しないユーザーID　
+    @Test
+    @Sql("/test_insert_user_list.sql") // @Sql()の中には`src/main/resources`以下のパスを書く
+    void findById_Error_userNotFound() {
+        assertThrows(UserNotFoundException.class, () -> {
+            userService.findById(9999);
+        });
+    }
+
+
+    
 }

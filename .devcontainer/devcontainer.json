@@ -9,9 +9,10 @@
     
     "extensions": [
         "vscjava.vscode-java-pack",
-        "pivotal.vscode-boot-dev-pack", 
-        "gabrielbb.vscode-lombok" 
+        "pivotal.vscode-boot-dev-pack",
+        "vscjava.vscode-gradle"
     ]
 }
+
 
 

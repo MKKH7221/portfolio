@@ -8,7 +8,7 @@
           <!-- name -->
           <div class="form-group" :class="{ error: v$.form.name.$errors.length }">
               <label for="">Name</label>
-              <input class="form-control" placeholder="Enter your username" type="name" v-model="v$.form.name.$model">
+              <input class="form-control" placeholder="name" type="name" v-model="v$.form.name.$model">
               <div class="input-errors" v-for="(error, index) of v$.form.name.$errors" :key="index">
                   <div class="error-msg">{{ error.$message }}</div>
               </div>
@@ -17,7 +17,7 @@
           <!-- address -->
           <div class="form-group" :class="{ error: v$.form.address.$errors.length }">
               <label for="">Address</label>
-              <input class="form-control" placeholder="Enter your address" type="address" v-model="v$.form.address.$model">
+              <input class="form-control" placeholder="address" type="address" v-model="v$.form.address.$model">
               <div class="input-errors" v-for="(error, index) of v$.form.address.$errors" :key="index">
                   <div class="error-msg">{{ error.$message }}</div>
               </div>
@@ -26,7 +26,7 @@
           <!-- tel -->
           <div class="form-group" :class="{ error: v$.form.tel.$errors.length }">
               <label for="">Tel</label>
-              <input class="form-control" placeholder="Enter your tel" type="tel" v-model="v$.form.tel.$model">
+              <input class="form-control" placeholder="tel" type="tel" v-model="v$.form.tel.$model">
               <div class="input-errors" v-for="(error, index) of v$.form.tel.$errors" :key="index">
                   <div class="error-msg">{{ error.$message }}</div>
               </div>
@@ -36,7 +36,7 @@
           <div class="form-group" :class="{ error: v$.form.countryCode.$errors.length }">
               <label for="">Country</label>
               <select class="form-control" type="countryCode" v-model="v$.form.countryCode.$model">
-                  <option value="" placeholder="Select a country" > Select a country </option>
+                  <option value="" placeholder="select a country" >select a country</option>
                   <option v-for="country in countryList" 
                       v-bind:key="country.code" v-bind:value="country.code">
                       {{ country.name }}
@@ -52,6 +52,9 @@
           </p>
         </form>
       </div>
+      <div class="backto">
+            <p><router-link to="/search">Go back to Search</router-link></p>
+        </div>
   </div>
 </template>
   
@@ -61,7 +64,7 @@
   import useVuelidate from '@vuelidate/core'
   import { required, numeric, maxLength, helpers} from '@vuelidate/validators'
   const alphaSpace = helpers.regex(/^[a-zA-Z ]*$/)
-  const alphaSpaceNumComma = helpers.regex(/^[a-zA-Z0-9 ,]*$/)
+  const alphaSpaceNumComma = helpers.regex(/^[a-zA-Z0-9 ,-\/]*$/)
 
   export default {
     name: 'addUser',
@@ -91,7 +94,7 @@
                 },
                 address: {
                   required,
-                  alphaSpaceNumComma: helpers.withMessage('You can use only alphabet, space and comma', alphaSpaceNumComma),
+                  alphaSpaceNumComma: helpers.withMessage('You can use only alphabet, number space, comma, hyphen, slash', alphaSpaceNumComma),
                 },
                 tel: {
                   required,
@@ -113,19 +116,16 @@
           .post("http://localhost:8080/add", this.form)
           .then(
             response => {
-              this.form.name = null;
-              this.form.address = null;
-              this.form.countryCode = null;
-              this.form.tel = null;
+              this.form.name="";
+              this.form.address="";
+              this.form.tel="";
+              this.form.countryCode="";
+              this.v$.form.$reset();
               this.message = "The user have successfully created";
             } 
           ).catch(
             error => {
-                if (error.response.status) {
-                  this.message = `status: ${error.response.status}, message: ${error.response.data}`;
-                } else {
                   this.message = `Failed to create user`;
-                }
             }
           );    
         },

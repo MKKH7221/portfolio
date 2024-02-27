@@ -19,6 +19,9 @@ import com.example.spring_project.domain.model.user.NewUser;
 import com.example.spring_project.domain.model.user.SearchUser;
 import com.example.spring_project.domain.model.user.User;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
+
 @RestController
 @CrossOrigin(origins = {"http://localhost:9000"})
 public class UserSearchController {
@@ -45,29 +48,21 @@ public class UserSearchController {
         SearchUser condition = new SearchUser(id, name, address, tel, countryCode);
 
         List<User> resultList = userService.findByCondition(condition);
-        for (User result : resultList) {
-                System.out.println(result.toString());
-        }
         return resultList;
     }
 
     @RequestMapping("/edit/{id}")
     public User detail(@PathVariable("id") Integer id) {
-        User result = userService.findById(id);
-        return result;
+        return userService.findById(id);
     }
 
     @PostMapping("/update")
     public User update(@RequestBody User user){
-        System.out.println(user);
-        userService.update(user);        
-        User updatedUser = userService.findById(user.id());
-        return updatedUser;
+        return  userService.update(user);  
     }
 
     @PostMapping("/add")
     public void add(@RequestBody NewUser newUser){
-        System.out.println(newUser.toString());
         userService.add(newUser);
     }
     
@@ -75,4 +70,5 @@ public class UserSearchController {
     public void delete(@PathVariable(value="id") Integer id) {
         userService.delete(id);
     }
+
 }

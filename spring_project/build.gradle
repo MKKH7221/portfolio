@@ -40,7 +40,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-//
+
 bootJar {
     manifest {
 	attributes 'Start-Class': 'com.example.spring_project.SpringBootApplication'
