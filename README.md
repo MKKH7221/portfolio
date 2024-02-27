@@ -12,7 +12,8 @@ This project is a basic CRUD user management web application, enabling to easily
 Built with the following technologies:
 
 - **Frontend**: Vue3, HTML, CSS, Vue Validation
-- **Backend**: Spring Boot (Java + Gradle)
+- **Backend**: Spring Boot version 3.1.4  
+- **Build**: Gradle
 - **Database**: MySQL
 - **Container**: Docker
 
@@ -20,8 +21,8 @@ All components of the application (frontend, backend, and database) run in Docke
 In adittion, developed following Test Driven Development and Dmain Driven Dvelopment methology.
 
 ## Features
-- User Search
+- User Search with criteria
 - User Delete
 - User Edit
-- User Register
+- Create User
 
