@@ -18,7 +18,6 @@ Built with the following technologies:
 - **Container**: Docker
 
 All components of the application (frontend, backend, and database) run in Docker containers.<br>
-In adittion, developed following Test Driven Development and Dmain Driven Dvelopment methology.
 
 ## Features
 - User Search with criteria
