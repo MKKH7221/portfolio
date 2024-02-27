@@ -75,7 +75,7 @@
   import useVuelidate from '@vuelidate/core'
   import { required, numeric, maxLength, helpers} from '@vuelidate/validators'
   const alphaSpace = helpers.regex(/^[a-zA-Z ]*$/)
-  const alphaSpaceNumComma = helpers.regex(/^[a-zA-Z0-9 ,]*$/)
+  const alphaSpaceNumComma = helpers.regex(/^[a-zA-Z0-9 ,-\/]*$/)
  export default {
     name: 'editUser',    
     setup () {
@@ -109,11 +109,12 @@
                 },
                 address: {
                     required,
-                    alphaSpaceNumComma: helpers.withMessage('You can use only alphabet, space and comma', alphaSpaceNumComma),
+                    alphaSpaceNumComma: helpers.withMessage('You can use only alphabet, number space, comma, hyphen, slash', alphaSpaceNumComma),
                 },
                 tel: {
                     required,
-                    numeric
+                    numeric,
+                    maxLength: maxLength(10),
                 },
                 country:{
                     code:{
@@ -151,7 +152,7 @@
             ).catch(
                 error => {
                     if (error.response.status) {
-                        this.errMessage = `update:status: ${error.response.status}, message: ${error.response.data}`;
+                        this.errMessage = `error: status: ${error.response.status}, message: ${error.response.data.$message}`;
                     } else {
                         this.errMessage = `Fail to edit user`;
                     }

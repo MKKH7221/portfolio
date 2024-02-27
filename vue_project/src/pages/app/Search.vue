@@ -1,29 +1,51 @@
 <template>
     <div class="content">
         <dev class="condition" >
-            <h4> search condition</h4>
+            <h4> Criteria</h4>
             <form>
                 <table>
                     <tr>
-                        <th id="th_condition" >ID</th>
+                        <th>ID</th>
                         <td>
-                            <input type="text" v-model="consId">
+                            <div class="form-group" :class="{ error: v$.form.consId.$errors.length }">
+                                <input class="form-control txt" type="text" v-model="v$.form.consId.$model">
+                                <div class="input-errors" v-for="(error, index) of v$.form.consId.$errors" :key="index">
+                                    <div class="error-msg">{{ error.$message }}</div>
+                                </div>
+                            </div>
                         </td>
-                        <th id="th_condition" >Name</th>
+                        <th>Name</th>
                         <td>
-                            <input type="text" v-model="name">
+                            <div class="form-group" :class="{ error: v$.form.name.$errors.length }">
+                                <input class="form-control" type="text" v-model="v$.form.name.$model">
+                                <div class="input-errors" v-for="(error, index) of v$.form.name.$errors" :key="index">
+                                    <div class="error-msg">{{ error.$message }}</div>
+                                </div>
+                            </div>
                         </td>
-                        <th id="th_condition">Address</th>
-                        <td><input type="text" v-model="address"></td>
+                        <th>Address</th>
+                        <td>
+                            <div class="form-group" :class="{ error: v$.form.address.$errors.length }">
+                                <input class="form-control" type="text" v-model="v$.form.address.$model">
+                                <div class="input-errors" v-for="(error, index) of v$.form.address.$errors" :key="index">
+                                    <div class="error-msg">{{ error.$message }}</div>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
-                        <th id="th_condition">Tel</th>
+                        <th>Tel</th>
                         <td>
-                            <input type="text" v-model="tel">
+                            <div class="form-group" :class="{ error: v$.form.tel.$errors.length }">
+                                <input class="form-control" type="text" v-model="v$.form.tel.$model">
+                                <div class="input-errors" v-for="(error, index) of v$.form.tel.$errors" :key="index">
+                                    <div class="error-msg">{{ error.$message }}</div>
+                                </div>
+                            </div>
                         </td>
-                        <th id="th_condition">Country</th>
+                        <th>Country</th>
                         <td width="50px" colspan="2">
-                            <select v-model="countryCode" id="selectedCountryCode">
+                            <select class="form-control" v-model="form.countryCode" id="selectedCountryCode">
                                 <option value=""> </option>
                                 <option v-for="item in countryList" v-bind:key="item.name" v-bind:value="item.code">
                                     {{ item.name }}
@@ -33,7 +55,7 @@
                     </tr>
                 </table>
                 <div class="button_align">
-                    <button @click="search" type="button" class="btn btn-primary">Search</button>
+                    <button @click="search" type="button" class="btn btn-primary" :disabled="v$.$invalid">Search</button>
                 </div>
             </form>
         </dev>    
@@ -82,7 +104,15 @@
 </template>
 <script>
     import axios from 'axios';
+    import useVuelidate from '@vuelidate/core'
+    import { numeric, maxLength, helpers} from '@vuelidate/validators'
+    const alphaSpace = helpers.regex(/^[a-zA-Z ]*$/)
+    const alphaSpaceNumComma = helpers.regex(/^[a-zA-Z0-9 ,-\/]*$/)
+
     export default {
+        setup () {
+            return { v$:useVuelidate() }
+        },
         data(){
             return{
                 users: [],
@@ -90,42 +120,63 @@
                 errMessage: "",
                 countryList: [],
                 // conditions
-                consId :"",
-                countryCode: "",
-                name: "",
-                address: "",
-                tel: ""
+                form: {
+                    consId :"",
+                    countryCode: "",
+                    name: "",
+                    address: "",
+                    tel: ""
+                }
             }
         },
-        mounted(){
-            axios.get('http://localhost:8080/init')
-                .then (
-                    response => {this.countryList = response.data;} 
-                ).catch (
-                    error => {
-                        this.errMessage = error.message
-                        switch (error.response?.status) {
-                            case 401:
-                                alert(`message 401: ${error}`);
-                            case 403:
-                                alert(`message 404: ${error}`);
-                            default:
-                                alert(`message default: ${error}`);
-                        }
+        validations() {
+            return {
+                form: {
+                    consId: {
+                        numeric,
+                    },
+                    name: {
+                        alphaSpace: helpers.withMessage('You can use only alphabet and space', alphaSpace),
+                    },
+                    address: {
+                        alphaSpaceNumComma: helpers.withMessage('You can use only alphabet, number space, comma, hyphen, slash', alphaSpaceNumComma),
+                    },
+                    tel: {
+                        numeric,
+                        maxLength: maxLength(10),
+                    },
+                },
+        }
+    },
+    mounted(){
+        axios.get('http://localhost:8080/init')
+            .then (
+                response => {this.countryList = response.data;} 
+            ).catch (
+                error => {
+                    this.errMessage = error.message
+                    switch (error.response.status) {
+                        case 401:
+                            alert(`message 401: ${error}`);
+                        case 403:
+                            alert(`message 404: ${error}`);
+                        default:
+                            alert(`message default: ${error}`);
                     }
-                ); 
-        },
+                }
+            ); 
+    },
         methods: {
             search (){
                 this.message = "";
                 axios
                 .get('http://localhost:8080/search', { 
                     params: {
-                        id : this.consId,
-                        name : this.name,
-                        address : this.address,
-                        tel : this.tel,
-                        countryCode : this.countryCode
+                        id : this.form.consId,
+                        name : this.form.name,
+                        address : this.form.address,
+                        tel : this.form.tel,
+                        countryCode : this.form.countryCode
                     }
                 }).then(
                     response => { 
@@ -164,18 +215,21 @@
     width: 100%;
     border: 0.5px solid #b2b0b0;
     background: #ebeff1;
-    padding: 10px;
+    padding: 20px;
     box-sizing: border-box;
 }
 
 .condition table {
-    width: 400px;
+    width: 80%;
     /* border: 0.5px solid #b2b0b0; */
 }
 .condition th {
-    width: 15%;
+    width: 30em;
     text-align: center;
 }
-
+.condition td {
+    width: 80em;
+    text-align: center;
+}
 
 </style>

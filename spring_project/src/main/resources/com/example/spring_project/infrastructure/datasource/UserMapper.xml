@@ -51,13 +51,13 @@
                 user.id = #{id}
             </if>
             <if test="name != null">
-                AND user.name = #{name}
+                AND user.name LIKE CONCAT('%', #{name}, '%')
             </if>
             <if test="address != null">
-                AND user.address = #{address}
+                AND user.address LIKE CONCAT('%', #{address}, '%')
             </if>
             <if test="tel != null">
-                AND user.tel = #{tel}
+                AND user.tel LIKE CONCAT('%', #{tel}, '%')
             </if>
             <if test="countryCode != null">
                 AND country.code = #{countryCode}

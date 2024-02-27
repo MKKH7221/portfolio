@@ -12,6 +12,8 @@ CREATE TABLE testdb.user(
     PRIMARY KEY (id)
 );
 
+ALTER TABLE testdb.user AUTO_INCREMENT = 1;
+
 INSERT INTO testdb.user( name, address, tel, country ) VALUES ('Tarou Itou', '3-1 Kanda, Chiyodaku, Tokyo','3456789012','JPN');
 INSERT INTO testdb.user( name, address, tel, country ) VALUES ('Jirou Tanaka','5-21 Higashihatsuishi, Nagareyama, Chiba','3456789012','JPN');
 INSERT INTO testdb.user( name, address, tel, country ) VALUES ('Shah Rukh Khan','Mannat, Bandra West, Mumbai, Maharashtra 400050, India','1239384811','IND');
