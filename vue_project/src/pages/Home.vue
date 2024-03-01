@@ -1,5 +1,4 @@
 
-import { required } from '@vuelidate/validators';
 <template>
       <div class="content">        
             <h3>API Specification</h3>
@@ -20,14 +19,14 @@ import { required } from '@vuelidate/validators';
                   <td>Get</td>
                   <td>/search</td>
                   <td>
-                    <p >
                       <b>URI Parameters</b><br>
-                        id: number Example: 1 <br> 
-                        name: string Example: "Galireo"<br>
-                        address: string Example: "Firenze"<br>
-                        tel: string Example: "345"<br>
-                        countryCode: string Example: "ITA"<br>
-                    </p>
+                      <ul>
+                          <li>id: number &nbsp;&nbsp;  Example: 1</li>
+                          <li>name: string &nbsp;&nbsp; Example: "Galireo"</li>
+                          <li>address: string &nbsp;&nbsp; Example: "Firenze"</li>
+                          <li>tel: string  &nbsp;&nbsp; Example: "345"</li>
+                          <li>countryCode: string &nbsp;&nbsp; Example: "ITA"</li>
+                      </ul>
                   </td>
                   <td>/search/?id=1&name="Galireo"</td>
                 </tr>  
@@ -36,10 +35,10 @@ import { required } from '@vuelidate/validators';
                   <td>Get</td>
                   <td>/edit/{id} </td>
                   <td>
-                    <span>
-                      <b>With Body </b><br>
-                      id: number required Example: 1<br>
-                    </span>
+                      <b>URI Parameters</b><br>
+                      <ul>
+                        <li>id: number (required) &nbsp;&nbsp; Example: 1</li>
+                      </ul>
                   </td>
                   <td>/edit/1</td>
                 </tr>  
@@ -50,29 +49,37 @@ import { required } from '@vuelidate/validators';
                   <td> 
                     <p>
                       <b>With Body </b><br>
-                        id: number required Example: 1 <br>
-                        name: string required Example: "Galireo"<br>
-                        address: string required Example: "Firenze"<br>
-                        tel: string required Example: "345"<br>
-                        country.code: string required Example: "ITA"<br>
+                      <ul>
+                        <li>id: number (required) &nbsp;&nbsp; Example: 1 </li>
+                        <li>name: string (required) &nbsp;&nbsp; Example: "Galireo"</li>
+                        <li>address: string (required) &nbsp;&nbsp; Example: "Firenze"</li>
+                        <li>tel: string (required) &nbsp;&nbsp; Example: "345"</li>
+                        <li>country.code: string (required) &nbsp;&nbsp; Example: "ITA"</li>
+                      </ul>
                     </p>    
                   </td>
                   <td> 
                     <span>
                       {<br>
-                        &nbsp&nbsp id: { value : 15 } ,<br>
-                        &nbsp&nbsp name: { value : "Galileo Galilei" } ,<br>
-                        &nbsp&nbsp address: { value : "Piazza Navona, 00186 Roma" } ,<br>
-                        &nbsp&nbsp tel: { value : "2324232432" } ,<br>
-                        &nbsp&nbsp country : {<br>
-                        &nbsp&nbsp&nbsp&nbsp name: "",<br>
-                        &nbsp&nbsp&nbsp&nbsp code: "ITA"<br>
-                        &nbsp&nbsp }<br>
-                      }<br>
+                        &nbsp;&nbsp; id: { <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; value : 15 <br>
+                        &nbsp;&nbsp;} ,<br>
+                        &nbsp;&nbsp;name: { <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; value : "Galileo Galilei" <br>
+                        &nbsp;&nbsp;} ,<br>
+                        &nbsp;&nbsp; address: { <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;value : "Piazza Navona, 00186 Roma" <br>
+                        &nbsp;&nbsp;} ,<br>
+                        &nbsp;&nbsp; tel: { <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;  value : "2324232432" <br>
+                        &nbsp;&nbsp;} ,<br>
+                        &nbsp;&nbsp; country : {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; name: "",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; code: "ITA"<br>
+                        &nbsp;&nbsp; }<br>
+                      }
                     </span>    
                   </td>
-
-
                 </tr>  
                 <tr>  
                   <td>Create User</td>
@@ -80,20 +87,28 @@ import { required } from '@vuelidate/validators';
                   <td>/add</td>
                   <td> 
                       <b>With Body</b><br>
-                        name: string required Example: "Galireo"<br>
-                        address: string required Example: "Firenze"<br>
-                        tel: string required Example: "345"<br>
-                        country.code: string required Example: "ITA"<br>
+                      <ul>
+                        <li>name: string (required) &nbsp;&nbsp; Example: "Galireo"</li>
+                        <li>address: string (required) &nbsp;&nbsp; Example: "Firenze"</li>
+                        <li>tel: string (required) &nbsp;&nbsp; Example: "345"</li>
+                        <li>country.code: string (required) &nbsp;&nbsp; Example: "ITA"</li>
+                      </ul>
                   </td>
                   <td> 
                       {<br>
-                        &nbsp&nbsp name: { value : "Galileo Galilei" } ,<br>
-                        &nbsp&nbsp address: { value : "Piazza Navona, 00186 Roma" } ,<br>
-                        &nbsp&nbsp tel: { value : "2324232432" } ,<br>
-                        &nbsp&nbsp country : {<br>
-                        &nbsp&nbsp&nbsp&nbsp name: "",<br>
-                        &nbsp&nbsp&nbsp&nbsp code: "ITA"<br>
-                        &nbsp&nbsp }<br>
+                        &nbsp;&nbsp; name: { <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; value : "Galileo Galilei"<br>
+                        &nbsp;&nbsp;} ,<br>
+                        &nbsp;&nbsp; address: { <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;  value : "Piazza Navona, 00186 Roma" <br>
+                        &nbsp;&nbsp;} ,<br>
+                        &nbsp;&nbsp; tel: { <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;value : "2324232432" <br>
+                        &nbsp;&nbsp;} ,<br>
+                        &nbsp;&nbsp; country : {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; name: "",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; code: "ITA"<br>
+                        &nbsp;&nbsp; }<br>
                     }<br>
                   </td>
                 </tr>  
@@ -102,16 +117,12 @@ import { required } from '@vuelidate/validators';
                   <td>Delete</td>
                   <td>/delete</td>
                   <td> 
-                    <p>
-                      <b>With Body </b><br>
-                        value: integer required Exsample: 1<br>
-                    </p>    
+                      <b>With Body</b>
+                      <ul><li>value: integer (required) &nbsp;&nbsp; Exsample: 1</li></ul>
                   </td>
                   <td> 
-                    <p>
                       <b>With Body </b><br>
-                        { value : 1 } <br>
-                    </p>    
+                      { value : 1 } 
                   </td>
                 </tr>  
                 </table>  

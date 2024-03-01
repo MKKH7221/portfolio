@@ -53,7 +53,9 @@ public class CountryTest {
         Country country = new Country("","");
         Set<ConstraintViolation<Country>> violations = validator.validate(country);
         assertThat(violations.size(), is(3));
-        assertEquals(Set.of(Country.NOT_EMPTY_ERROR, Country.LENGTH_ERROR, country.NOT_EXISTS_ERROR),
+        assertEquals(Set.of(Country.NOT_EMPTY_ERROR, 
+            Country.LENGTH_ERROR, 
+            Country.NOT_EXISTS_ERROR),
                 violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet()));
     }
 

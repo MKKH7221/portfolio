@@ -4,7 +4,6 @@ package com.example.spring_project.presentation.controller;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -30,14 +29,12 @@ import com.example.spring_project.domain.model.user.Name;
 import com.example.spring_project.domain.model.user.NewUser;
 import com.example.spring_project.domain.model.user.Tel;
 import com.example.spring_project.domain.model.user.User;
-import com.example.spring_project.domain.model.user.UserRepository;
 import com.example.spring_project.domain.model.user.Address;
 import com.example.spring_project.domain.model.user.Id;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -49,17 +46,12 @@ public class UserSearchControllerTest {
 
     @Autowired
     private UserService service;
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     private final String SYSTEM_ERROR = "systemError";
-    private final String USER_NOT_FOUND_ERROR = "userNotFound";
-    
 
-    // @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
     void testEdit_canGetUser() throws Exception {
@@ -119,10 +111,6 @@ public class UserSearchControllerTest {
             .andExpect(content().string(containsString("Failed to convert value of type")));
     }
 
-    
-    // -------------------
-    // Delete
-    // -------------------
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
