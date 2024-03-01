@@ -154,10 +154,9 @@
             );    
         },
         update() {
-            // alert(JSON.stringify(this.form));
             this.form.country.name = "";
             axios
-            .put('http://localhost:8080/update', this.form)
+            .patch('http://localhost:8080/update', this.form)
             .then(
                 response => {
                     this.form = response.data;
@@ -204,9 +203,9 @@
     padding: 20px;
     box-sizing: border-box;
 }
-.backto {
+/* .backto {
     display: block;
     width: 60%;
-}
+} */
 
 </style>

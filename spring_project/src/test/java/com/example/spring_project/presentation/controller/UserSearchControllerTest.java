@@ -4,8 +4,10 @@ package com.example.spring_project.presentation.controller;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,6 +30,7 @@ import com.example.spring_project.domain.model.user.Name;
 import com.example.spring_project.domain.model.user.NewUser;
 import com.example.spring_project.domain.model.user.Tel;
 import com.example.spring_project.domain.model.user.User;
+import com.example.spring_project.domain.model.user.UserRepository;
 import com.example.spring_project.domain.model.user.Address;
 import com.example.spring_project.domain.model.user.Id;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,14 +49,20 @@ public class UserSearchControllerTest {
 
     @Autowired
     private UserService service;
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    private final String SYSTEM_ERROR = "systemError";
+    private final String USER_NOT_FOUND_ERROR = "userNotFound";
+    
+
     // @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testEdit_ユーザーが正しく取得することができること() throws Exception {
+    void testEdit_canGetUser() throws Exception {
         List<User> list = service.findAll();
 
         User expected = list.get(3);
@@ -70,55 +79,54 @@ public class UserSearchControllerTest {
             .andExpect(jsonPath("$.country.code").value(expected.country().code()));
     }
    
-    @SuppressWarnings("null")
-    @Test
-    @Sql("/test_insert_user_list.sql")
-    void testEdit_ユーザーが取得できず例外発生すること() throws Exception {
-        String expectedErrorCode = "userNotFound";
-        String exectedErrorMessage = "No user found by ID";
-         mockMvc.perform(get("/edit/500"))
-            .andDo(print())
-            .andExpect(status().is(404))
-            .andExpect(content().string(containsString(expectedErrorCode)))
-            .andExpect(content().string(containsString(exectedErrorMessage)));
-    }
     // @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
     void testEdit_error_UnexistedEndPoint() throws Exception {
-        // String expected = "systemError";
         mockMvc.perform(get("/edit/"))
             .andDo(print())
             .andExpect(status().is(404));
+    }
+    @SuppressWarnings("null")
+    @Test
+    @Sql("/test_insert_user_list.sql")
+    void testEdit_error_validation_id_notExists() throws Exception {
+         mockMvc.perform(get("/edit/500"))
+            .andDo(print())
+            .andExpect(status().is(500))
+            .andExpect(content().string(containsString(this.SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Id.ID_CHECK_ERROR)));
+    }
+    @SuppressWarnings("null")
+    @Test
+    @Sql("/test_insert_user_list.sql")
+    void testEdit_error_validation_id_maxLength() throws Exception {
+        mockMvc.perform(get("/edit/" + 100000))
+            .andDo(print())
+            .andExpect(status().is5xxServerError())
+            .andExpect(content().string(containsString(this.SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Id.MAX_LENGTH_ERROR)));
     }
 
     @SuppressWarnings("null")   
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testEdit_error_IdIsString() throws Exception {
-        String expected = "systemError";
+    void testEdit_error_id_is_string() throws Exception {
         mockMvc.perform(get("/edit/aaaaa"))
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString(expected)));
+            .andExpect(content().string(containsString(this.SYSTEM_ERROR)))
+            .andExpect(content().string(containsString("Failed to convert value of type")));
     }
 
-    @SuppressWarnings("null")
-    @Test
-    @Sql("/test_insert_user_list.sql")
-    void testEdit_validationError() throws Exception {
-        String expected = "systemError";
-        mockMvc.perform(get("/edit/" + 100000))
-            .andDo(print())
-            .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString(expected)))
-            .andExpect(content().string(containsString(Id.MAX_LENGTH_ERROR)));
-    }
     
+    // -------------------
+    // Delete
+    // -------------------
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testDelete_ユーザーが正しく削除できること() throws Exception {
+    void testDelete_canDeleteUser() throws Exception {
         User user = service.findAll().get(0);
         mockMvc.perform((delete("/delete"))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -129,56 +137,56 @@ public class UserSearchControllerTest {
 
     @SuppressWarnings("null")
     @Test
-    void testDelete_ユーザーが取得できず例外発生すること() throws Exception {
+    void testDelete_error_validation_id_notExists() throws Exception {
         Id testId = new Id(9999);
-        String expectedErrorCode = "userNotFound";
-        String exectedErrorMessage = "No user found by ID";
         
         mockMvc.perform(delete("/delete")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testId)))
            .andDo(print())
-           .andExpect(status().is(404))
-           .andExpect(content().string(containsString(expectedErrorCode)))
-           .andExpect(content().string(containsString(exectedErrorMessage)));
+           .andExpect(status().is(500))
+           .andExpect(content().string(containsString(SYSTEM_ERROR)))
+           .andExpect(content().string(containsString(Id.ID_CHECK_ERROR)));
     }
 
     @SuppressWarnings("null")
     @Test
-    void testDelete_idIsNull() throws Exception {
-        String id = "{\"value\":}";
-        String expected = "systemError";
-        mockMvc.perform(delete("/delete")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(id))
-           .andDo(print())
-           .andExpect(status().is5xxServerError())
-           .andExpect(content().string(containsString(expected)));
-    }
-
-   @SuppressWarnings("null")
-    @Test
-    void testDelete_validationError() throws Exception {
+    void testDelete_error_validation_id_maxLength() throws Exception {
         String id = "{\"value\":999999999}";
-        String expected = "systemError";
         mockMvc.perform(delete("/delete")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(id))
            .andDo(print())
            .andExpect(status().is5xxServerError())
-           .andExpect(content().string(containsString(expected)))
+           .andExpect(content().string(containsString(SYSTEM_ERROR)))
            .andExpect(content().string(containsString(Id.MAX_LENGTH_ERROR)));
     }
 
+    @SuppressWarnings("null")
     @Test
-    void testInit_国リストが取得できること()  throws Exception {
+    void testDelete_systemError_id_isNull() throws Exception {
+        // JSON parse error
+        String id = "{\"value\":}";
+        mockMvc.perform(delete("/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(id))
+           .andDo(print())
+           .andExpect(status().is5xxServerError())
+           .andExpect(content().string(containsString(SYSTEM_ERROR)));
+    }
+
+    /*
+     * Init
+     */
+    @Test
+    void testInit_canGetCountryList()  throws Exception {
         mockMvc.perform(get("/init"))
            .andDo(print())
            .andExpect(status().isOk());
     }
 
     @Test
-    void test404_存在しないエンドポイントを指定してnotFoundが返却されること() throws Exception {
+    void test404_endpointDoesNotExists() throws Exception {
         mockMvc.perform(get("/xxxx"))
            .andDo(print())
            .andExpect(status().isNotFound());
@@ -187,7 +195,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testUpdate_ユーザーが正しく更新されること() throws Exception {
+    void testUpdate_canUpdateUser() throws Exception {
         User user = service.findAll().get(4);
         System.out.println(user.toString());
         User stub = new User(
@@ -198,7 +206,7 @@ public class UserSearchControllerTest {
              new Country("India", "IND"));
 
         String expected = objectMapper.writeValueAsString(stub);
-        mockMvc.perform(post("/update")
+        mockMvc.perform(patch("/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(expected)
                 )
@@ -210,36 +218,34 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testUpdate_validationError_id() throws Exception {
+    void testUpdate_error_validation_id_maxLength() throws Exception {
         String testdata = "{\"id\":{\"value\":9999999},\"name\":{\"value\":\"New User\"},\"address\":{\"value\":\"New address 345\"},\"tel\":{\"value\":\"3023898787\"},\"country\":{\"name\":\"India\",\"code\":\"IND\"}}";
-        String expectedError1 = "systemError";
-        String expectedError2 = "Id must be from 1 to 9999";
 
-        // System.out.println(expected);
-        mockMvc.perform(post("/update")
+        mockMvc.perform(patch("/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testdata)
                 )
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString(expectedError1)))
-            .andExpect(content().string(containsString(expectedError2)));
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Id.ID_CHECK_ERROR)))
+            .andExpect(content().string(containsString(Id.MAX_LENGTH_ERROR)));
     }
 
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testUpdate_validationError_id_Name() throws Exception {
+    void testUpdate_error_validation_id_name() throws Exception {
         String testdata = "{\"id\":{\"value\":9999999},\"name\":{\"value\":\"New User!!!\"},\"address\":{\"value\":\"New address 345\"},\"tel\":{\"value\":\"3023898787\"},\"country\":{\"name\":\"India\",\"code\":\"IND\"}}";
-        String expectedError1 = "systemError";
 
-        mockMvc.perform(post("/update")
+        mockMvc.perform(patch("/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testdata)
                 )
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString(expectedError1)))
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Id.ID_CHECK_ERROR)))
             .andExpect(content().string(containsString(Id.MAX_LENGTH_ERROR)))
             .andExpect(content().string(containsString(Name.PATTERN_ERROR)));
     }
@@ -247,7 +253,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testUpdate_validationError_id_Name_Address() throws Exception {
+    void testUpdate_error_validation_id_name_address() throws Exception {
         
         String testdata = "{\"id\":{\"value\":9999999},"
             + "\"name\":{\"value\":\"New User!!!\"},"
@@ -255,14 +261,14 @@ public class UserSearchControllerTest {
             + "\"tel\":{\"value\":\"3023898787\"},"
             + "\"country\":{\"name\":\"India\",\"code\":\"IND\"}}";
 
-        // System.out.println(expected);
-        mockMvc.perform(post("/update")
+        mockMvc.perform(patch("/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testdata)
                 )
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString("systemError")))
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Id.ID_CHECK_ERROR)))
             .andExpect(content().string(containsString(Id.MAX_LENGTH_ERROR)))
             .andExpect(content().string(containsString(Name.PATTERN_ERROR)))
             .andExpect(content().string(containsString(Address.LENGTH_ERROR)))
@@ -272,7 +278,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testUpdate_validationError_id_Name_Address_country() throws Exception {
+    void testUpdate_error_validation_id_name_address_country() throws Exception {
         
         String testdata = "{\"id\":{\"value\":9999999},"
             + "\"name\":{\"value\":\"New User!!!\"},"
@@ -280,14 +286,14 @@ public class UserSearchControllerTest {
             + "\"tel\":{\"value\":\"3023898787\"},"
             + "\"country\":{\"name\":\"India\",\"code\":\"\"}}";
 
-        // System.out.println(expected);
-        mockMvc.perform(post("/update")
+        mockMvc.perform(patch("/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testdata)
                 )
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString("systemError")))
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Id.ID_CHECK_ERROR)))
             .andExpect(content().string(containsString(Id.MAX_LENGTH_ERROR)))
             .andExpect(content().string(containsString(Name.PATTERN_ERROR)))
             .andExpect(content().string(containsString(Address.LENGTH_ERROR)))
@@ -297,7 +303,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testSearch_emptyCriteria() throws Exception {
+    void testSearch_canGetUserList_noCriteria() throws Exception {
         mockMvc.perform(get("/search")
                 .param("id", "")
                 .param("name", "")
@@ -312,14 +318,11 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testSearch_Criteria_Name_Address() throws Exception {
+    void testSearch_canGetUserList_criteria_name_address() throws Exception {
         mockMvc.perform(get("/search")
-                .param("id", "")
                 .param("name", "Sada")
-                .param("address", "Tokyo")
-                .param("tel", "")
-                .param("countryCode", ""))
-            .andDo(print())
+                .param("address", "Tokyo"))
+             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[*].name.value", Matchers.everyItem(Matchers.containsString("Sada"))))
@@ -330,13 +333,9 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testSearch_Criteria_Country() throws Exception {
+    void testSearch_canGetUserList_criteria_country() throws Exception {
 
         mockMvc.perform(get("/search")
-                .param("id", "")
-                .param("name", "")
-                .param("address", "")
-                .param("tel", "")
                 .param("countryCode", "ITA"))
             .andDo(print())
             .andExpect(status().isOk())
@@ -348,10 +347,9 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testSearch_Criteria_All() throws Exception {
+    void testSearch_canGetUserList_criteria_all() throws Exception {
 
         mockMvc.perform(get("/search")
-                .param("id", "")
                 .param("name", "Galileo")
                 .param("address", "Rome")
                 .param("tel", "67891")
@@ -369,24 +367,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testSearch_Criteria_All_test() throws Exception {
-
-        mockMvc.perform(get("/search")
-                .param("name", "Galileo")
-                .param("address", "Rome")
-            )
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[*].name.value", Matchers.everyItem(Matchers.containsString("Galileo"))))
-            .andExpect(jsonPath("$[*].address.value", Matchers.everyItem(Matchers.containsString("Rome")))
-            );
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @Sql("/test_insert_user_list.sql")
-    void testSearch_検索結果が0件の場合でもエラーにならないこと() throws Exception {
+    void testSearch_noErrorOcceredWhenResultIs0() throws Exception {
 
         mockMvc.perform(get("/search")
                 .param("id", "99999")
@@ -402,7 +383,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testAdd_ユーザーが正常に登録されること() throws Exception {
+    void testAdd_canAddUser() throws Exception {
 
         NewUser newUser = new NewUser(
             new Name("New User"),
@@ -422,7 +403,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testAdd_validationError_name() throws Exception {
+    void testAdd_error_validation_name() throws Exception {
 
         String test = "{\"name\":{\"value\":\"New User@1!#$~=¥?><^|&\"},\"address\":{\"value\":\"Via Del Monumento, 4, 27012 Certosa di Pavia Pavia\"},\"tel\":{\"value\":\"8544453435\"},\"country\":{\"name\":\"\",\"code\":\"ITA\"}}";
 
@@ -431,7 +412,7 @@ public class UserSearchControllerTest {
             .content(test))
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString("systemError")))
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
             .andExpect(content().string(containsString(Name.SIZE_ERROR)))
             .andExpect(content().string(containsString(Name.PATTERN_ERROR)));
     }    
@@ -439,7 +420,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testAdd_validationError_nameAddress() throws Exception {
+    void testAdd_error_validation_name_address() throws Exception {
 
         String test = "{\"name\":{\"value\":\"New User!% New User$% New User=^'\"},\"address\":{\"value\":\"Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$, Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$\"},\"tel\":{\"value\":\"8544453435\"},\"country\":{\"name\":\"\",\"code\":\"ITA\"}}";
 
@@ -448,7 +429,7 @@ public class UserSearchControllerTest {
             .content(test))
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString("systemError")))
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
             .andExpect(content().string(containsString(Name.SIZE_ERROR)))
             .andExpect(content().string(containsString(Name.PATTERN_ERROR)))
             .andExpect(content().string(containsString(Address.LENGTH_ERROR)))
@@ -458,7 +439,7 @@ public class UserSearchControllerTest {
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testAdd_validationError_nameAddressTel() throws Exception {
+    void testAdd_error_validation_name_address_tel() throws Exception {
 
         String test = "{\"name\":{\"value\":\"New User!% New User$% New User=^'\"},\"address\":{\"value\":\"Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$, Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$\"},\"tel\":{\"value\":\"8544453435s-\"},\"country\":{\"name\":\"\",\"code\":\"ITA\"}}";
 
@@ -467,7 +448,7 @@ public class UserSearchControllerTest {
             .content(test))
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString("systemError")))
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
             .andExpect(content().string(containsString(Name.SIZE_ERROR)))
             .andExpect(content().string(containsString(Name.PATTERN_ERROR)))
             .andExpect(content().string(containsString(Address.LENGTH_ERROR)))
@@ -477,10 +458,11 @@ public class UserSearchControllerTest {
             // .andExpect(content().string(containsString(Address.PATTERN_ERROR)));
     }    
 
+
     @SuppressWarnings("null")
     @Test
     @Sql("/test_insert_user_list.sql")
-    void testAdd_validationError_nameAddressTelCountry() throws Exception {
+    void testAdd_error_validation_name_address_tel_country() throws Exception {
 
         String test = "{\"name\":{\"value\":\"New User!% New User$% New User=^'\"},\"address\":{\"value\":\"Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$, Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$,Via Del Monumento, 4, 27012 Certosa di Pavia Pavia|&%$\"},\"tel\":{\"value\":\"8544453435s-\"},\"country\":{\"name\":\"\",\"code\":\"\"}}";
 
@@ -489,7 +471,7 @@ public class UserSearchControllerTest {
             .content(test))
             .andDo(print())
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(containsString("systemError")))
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
             .andExpect(content().string(containsString(Name.SIZE_ERROR)))
             .andExpect(content().string(containsString(Name.PATTERN_ERROR)))
             .andExpect(content().string(containsString(Address.LENGTH_ERROR)))
@@ -499,5 +481,98 @@ public class UserSearchControllerTest {
             .andExpect(content().string(containsString(Country.NOT_EMPTY_ERROR)))
             .andExpect(content().string(containsString(Country.LENGTH_ERROR)));
     }    
+    @SuppressWarnings("null")
+    @Test
+    @Sql("/test_insert_user_list.sql")
+    void testAdd_error_validation_name_isEmpty() throws Exception {
+
+        String test = "{\"name\":{\"value\":\"\"},"
+            +"\"address\":{\"value\":\"Via Del Monumento, 4, 27012 Certosa di Pavia Pavia\"},"
+            +"\"tel\":{\"value\":\"8544453435\"},"
+            +"\"country\":{\"name\":\"\",\"code\":\"ITA\"}}";
+
+        mockMvc.perform(post("/add")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(test))
+            .andDo(print())
+            .andExpect(status().is5xxServerError())
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Name.NOT_BLANK_ERROR)));
+    }
+    @SuppressWarnings("null")
+    @Test
+    @Sql("/test_insert_user_list.sql")
+    void testAdd_error_validation_address_isEmpty() throws Exception {
+
+        String test = "{\"name\":{\"value\":\"New User\"},"
+            +"\"address\":{\"value\":\"\"},"
+            +"\"tel\":{\"value\":\"8544453435\"},"
+            +"\"country\":{\"name\":\"\",\"code\":\"ITA\"}}";
+
+        mockMvc.perform(post("/add")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(test))
+            .andDo(print())
+            .andExpect(status().is5xxServerError())
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Address.NOT_BLANK_ERROR)));
+    }
+    @SuppressWarnings("null")
+    @Test
+    @Sql("/test_insert_user_list.sql")
+    void testAdd_error_validation_tel_isEmpty() throws Exception {
+
+        String test = "{\"name\":{\"value\":\"New User\"},"
+            +"\"address\":{\"value\":\"Via Del Monumento, 4, 27012 Certosa di Pavia Pavia\"},"
+            +"\"tel\":{\"value\":\"\"},"
+            +"\"country\":{\"name\":\"\",\"code\":\"ITA\"}}";
+
+        mockMvc.perform(post("/add")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(test))
+            .andDo(print())
+            .andExpect(status().is5xxServerError())
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Tel.NOT_BLANK_ERROR)));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    @Sql("/test_insert_user_list.sql")
+    void testAdd_error_validation_country_notExists() throws Exception {
+
+        String test = "{\"name\":{\"value\":\"New User\"},"
+            +"\"address\":{\"value\":\"Via Del Monumento, 4, 27012 Certosa di Pavia Pavia\"},"
+            +"\"tel\":{\"value\":\"8544453435\"},"
+            +"\"country\":{\"name\":\"\",\"code\":\"AAA\"}}";
+
+        mockMvc.perform(post("/add")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(test))
+            .andDo(print())
+            .andExpect(status().is5xxServerError())
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Country.NOT_EXISTS_ERROR)));
+    }    
+
+    @SuppressWarnings("null")
+    @Test
+    @Sql("/test_insert_user_list.sql")
+    void testAdd_error_validation_country_isEmpty() throws Exception {
+
+        String test = "{\"name\":{\"value\":\"New User\"},"
+            +"\"address\":{\"value\":\"Via Del Monumento, 4, 27012 Certosa di Pavia Pavia\"},"
+            +"\"tel\":{\"value\":\"8544453435\"},"
+            +"\"country\":{\"name\":\"\",\"code\":\"\"}}";
+
+        mockMvc.perform(post("/add")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(test))
+            .andDo(print())
+            .andExpect(status().is5xxServerError())
+            .andExpect(content().string(containsString(SYSTEM_ERROR)))
+            .andExpect(content().string(containsString(Country.NOT_EMPTY_ERROR)));
+    }
+
 
 }

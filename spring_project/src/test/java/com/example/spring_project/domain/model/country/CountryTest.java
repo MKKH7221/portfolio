@@ -34,8 +34,8 @@ public class CountryTest {
     public void error_sizeTooLong() {
         Country country = new Country("Italy","IIIITA");
         Set<ConstraintViolation<Country>> violations = validator.validate(country);
-        assertThat(violations.size(), is(1));
-        assertEquals(Set.of(Country.LENGTH_ERROR),
+        assertThat(violations.size(), is(2));
+        assertEquals(Set.of(Country.LENGTH_ERROR, Country.NOT_EXISTS_ERROR),
                 violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet()));
     }
 
@@ -43,8 +43,8 @@ public class CountryTest {
     public void error_sizeTooShort() {
         Country country = new Country("Italy","TA");
         Set<ConstraintViolation<Country>> violations = validator.validate(country);
-        assertThat(violations.size(), is(1));
-        assertEquals(Set.of(Country.LENGTH_ERROR),
+        assertThat(violations.size(), is(2));
+        assertEquals(Set.of(Country.LENGTH_ERROR, Country.NOT_EXISTS_ERROR),
                 violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet()));
     }
 
@@ -52,10 +52,20 @@ public class CountryTest {
     public void error_empty() {
         Country country = new Country("","");
         Set<ConstraintViolation<Country>> violations = validator.validate(country);
-        assertThat(violations.size(), is(2));
-        assertEquals(Set.of(Country.NOT_EMPTY_ERROR, Country.LENGTH_ERROR),
+        assertThat(violations.size(), is(3));
+        assertEquals(Set.of(Country.NOT_EMPTY_ERROR, Country.LENGTH_ERROR, country.NOT_EXISTS_ERROR),
                 violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet()));
     }
+
+    @Test
+    public void error_isNotExists() {
+        Country country = new Country("","AAA");
+        Set<ConstraintViolation<Country>> violations = validator.validate(country);
+        assertThat(violations.size(), is(1));
+        assertEquals(Set.of(Country.NOT_EXISTS_ERROR),
+                violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet()));
+    }
+
 
 
 

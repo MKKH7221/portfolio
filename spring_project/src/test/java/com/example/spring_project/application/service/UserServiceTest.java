@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.spring_project.domain.errors.UserNotFoundException;
+import com.example.spring_project.application.errors.UserNotFoundException;
 import com.example.spring_project.domain.model.country.Country;
 import com.example.spring_project.domain.model.user.Address;
 import com.example.spring_project.domain.model.user.Id;

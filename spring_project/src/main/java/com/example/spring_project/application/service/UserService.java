@@ -6,7 +6,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.spring_project.domain.errors.UserNotFoundException;
+import com.example.spring_project.application.errors.UserNotFoundException;
 import com.example.spring_project.domain.model.user.NewUser;
 import com.example.spring_project.domain.model.user.SearchUser;
 import com.example.spring_project.domain.model.user.User;

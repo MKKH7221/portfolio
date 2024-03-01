@@ -3,7 +3,7 @@ import { required } from '@vuelidate/validators';
 <template>
       <div class="content">        
             <h3>API Specification</h3>
-              Basic API Specifications for User Management Application<br>
+              Basic API Specifications for User Management Application API<br>
               <table>
                 <tr>
                   <th>Description</th>
@@ -45,7 +45,7 @@ import { required } from '@vuelidate/validators';
                 </tr>  
                 <tr>
                   <td>Update User</td>
-                  <td>PUT</td>
+                  <td>Patch</td>
                   <td>/update </td>
                   <td> 
                     <p>
@@ -60,14 +60,14 @@ import { required } from '@vuelidate/validators';
                   <td> 
                     <span>
                       {<br>
-                        id: { value : 15 } ,<br>
-                        name: { value : "Galileo Galilei" } ,<br>
-                        address: { value : "Piazza Navona, 00186 Roma RM" } ,<br>
-                        tel: { value : "2324232432" } ,<br>
-                        country : {<br>
-                            name: "",<br>
-                            code: "ITA"<br>
-                        }<br>
+                        &nbsp&nbsp id: { value : 15 } ,<br>
+                        &nbsp&nbsp name: { value : "Galileo Galilei" } ,<br>
+                        &nbsp&nbsp address: { value : "Piazza Navona, 00186 Roma" } ,<br>
+                        &nbsp&nbsp tel: { value : "2324232432" } ,<br>
+                        &nbsp&nbsp country : {<br>
+                        &nbsp&nbsp&nbsp&nbsp name: "",<br>
+                        &nbsp&nbsp&nbsp&nbsp code: "ITA"<br>
+                        &nbsp&nbsp }<br>
                       }<br>
                     </span>    
                   </td>
@@ -87,13 +87,13 @@ import { required } from '@vuelidate/validators';
                   </td>
                   <td> 
                       {<br>
-                        name: { value : "Galileo Galilei" } ,<br>
-                        address: { value : "Piazza Navona, 00186 Roma RM" } ,<br>
-                        tel: { value : "2324232432" } ,<br>
-                        country : {<br>
-                            name: "",<br>
-                            code: "ITA"<br>
-                      }<br>
+                        &nbsp&nbsp name: { value : "Galileo Galilei" } ,<br>
+                        &nbsp&nbsp address: { value : "Piazza Navona, 00186 Roma" } ,<br>
+                        &nbsp&nbsp tel: { value : "2324232432" } ,<br>
+                        &nbsp&nbsp country : {<br>
+                        &nbsp&nbsp&nbsp&nbsp name: "",<br>
+                        &nbsp&nbsp&nbsp&nbsp code: "ITA"<br>
+                        &nbsp&nbsp }<br>
                     }<br>
                   </td>
                 </tr>  

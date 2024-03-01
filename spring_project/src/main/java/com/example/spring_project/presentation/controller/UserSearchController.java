@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.spring_project.application.service.CountryService;
 import com.example.spring_project.application.service.UserService;
+import com.example.spring_project.application.validation.IdCheck;
 import com.example.spring_project.domain.model.country.Country;
 import com.example.spring_project.domain.model.user.Id;
 import com.example.spring_project.domain.model.user.NewUser;
@@ -57,11 +59,13 @@ public class UserSearchController {
     @GetMapping("/edit/{id}")
     public User detail (@PathVariable("id")
             @Max( value = 9999, message=Id.MAX_LENGTH_ERROR)
+            @IdCheck (message = Id.ID_CHECK_ERROR)
             Integer id) {
         return userService.findById(id);
     }
 
-    @PostMapping("/update")
+    // @PostMapping("/update")
+    @PatchMapping("/update")
     public User update(@Validated @RequestBody User user){
         return  userService.update(user);  
     }
