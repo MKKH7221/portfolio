@@ -8,13 +8,13 @@
                     <!-- id -->
                     <div class="form-group">
                         <label class="label" for="id">Id</label>
-                        <input class="form-control" type="id" v-model="form.id" disabled="true"/>
+                        <input class="form-control" type="id" v-model="form.id.value" disabled="true"/>
                     </div>
                     <br>
                     <!-- name -->
                     <div class="form-group" :class="{ error: v$.form.name.$errors.length }">
                         <label for="">Name</label>
-                        <input class="form-control" type="name" v-model="v$.form.name.$model">
+                        <input class="form-control" type="name" v-model="v$.form.name.value.$model">
                         <!-- <div class="pre-icon os-icon os-icon-user-male-circle"></div> -->
                         <div class="input-errors" v-for="(error, index) of v$.form.name.$errors" :key="index">
                             <div class="error-msg">{{ error.$message }}</div>
@@ -24,7 +24,7 @@
                     <!-- address -->
                     <div class="form-group" :class="{ error: v$.form.address.$errors.length }">
                         <label for="">Address</label>
-                        <input class="form-control" type="address" v-model="v$.form.address.$model">
+                        <input class="form-control" type="address" v-model="v$.form.address.value.$model">
                         <div class="input-errors" v-for="(error, index) of v$.form.address.$errors" :key="index">
                             <div class="error-msg">{{ error.$message }}</div>
                         </div>
@@ -33,7 +33,7 @@
                     <!-- tel -->
                     <div class="form-group" :class="{ error: v$.form.tel.$errors.length }">
                         <label for="">Tel</label>
-                        <input class="form-control"  type="tel" v-model="v$.form.tel.$model">
+                        <input class="form-control"  type="tel" v-model="v$.form.tel.value.$model">
                         <!-- error message -->
                         <div class="input-errors" v-for="(error, index) of v$.form.tel.$errors" :key="index">
                             <div class="error-msg">{{ error.$message }}</div>
@@ -84,10 +84,10 @@
     data(){
         return{
             form: {
-                id: null,
-                name: null,
-                tel: null,
-                address: null,
+                id: { value : null } ,
+                name: { value : null } ,
+                tel: { value : null } ,
+                address: { value : null } ,
                 country : {
                     name: null,
                     code: null
@@ -103,24 +103,31 @@
         return {
             form: {
                 name: {
-                    required,
-                    maxLength: maxLength(20),
-                    alphaSpace: helpers.withMessage('You can use only alphabet and space', alphaSpace),
+                    value:{
+                        required,
+                        maxLength: maxLength(20),
+                        alphaSpace: helpers.withMessage('Name must be used alphabet or space', alphaSpace),
+                    }
                 },
                 address: {
-                    required,
-                    alphaSpaceNumComma: helpers.withMessage('You can use only alphabet, number space, comma, hyphen, slash', alphaSpaceNumComma),
+                    value:{
+                        required,
+                        maxLength: maxLength(100),
+                        alphaSpaceNumComma: helpers.withMessage('Address must be used alphabet, number, space, comma, hyphen, slash', alphaSpaceNumComma),
+                    }
                 },
                 tel: {
-                    required,
-                    numeric,
-                    maxLength: maxLength(10),
+                    value:{
+                        required,
+                        numeric,
+                        maxLength: maxLength(10),
+                    }
                 },
-                country:{
+                country: {
                     code:{
                         required
                     }
-                },
+                }
             },
         }
     },
@@ -131,19 +138,26 @@
     },
     methods: {
         getResults() {
+            console.log(this.id);
             axios
-            .get('http://localhost:8080/edit/'+ this.id)
+            .get('http://localhost:8080/edit/'+this.id)
             .then(
                 response => {this.form = response.data;} 
             ).catch(
-                error => { this.errMessage = "Failed to find user"; }
+                error => { 
+                    if (error.response.status) {
+                        this.errMessage = `error: status: ${error.response.status}, message: ${error.response.data.$message}`;
+                    } else {
+                        this.errMessage = "getResults : Failed to find user id ["+ this.id+"]"; 
+                    }
+                }
             );    
         },
         update() {
             // alert(JSON.stringify(this.form));
             this.form.country.name = "";
             axios
-            .post('http://localhost:8080/update', this.form)
+            .put('http://localhost:8080/update', this.form)
             .then(
                 response => {
                     this.form = response.data;

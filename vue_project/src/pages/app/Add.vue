@@ -5,10 +5,11 @@
         <div v-show="errMessage" class="alert alert-danger">{{errMessage}}</div>
         <div v-show="message" class="alert alert-success">{{ message }}</div>
         <form v-on:submit.prevent="addUser">
+
           <!-- name -->
           <div class="form-group" :class="{ error: v$.form.name.$errors.length }">
               <label for="">Name</label>
-              <input class="form-control" placeholder="name" type="name" v-model="v$.form.name.$model">
+              <input class="form-control" placeholder="name" type="name" v-model="v$.form.name.value.$model">
               <div class="input-errors" v-for="(error, index) of v$.form.name.$errors" :key="index">
                   <div class="error-msg">{{ error.$message }}</div>
               </div>
@@ -17,7 +18,7 @@
           <!-- address -->
           <div class="form-group" :class="{ error: v$.form.address.$errors.length }">
               <label for="">Address</label>
-              <input class="form-control" placeholder="address" type="address" v-model="v$.form.address.$model">
+              <input class="form-control" placeholder="address" type="address" v-model="v$.form.address.value.$model">
               <div class="input-errors" v-for="(error, index) of v$.form.address.$errors" :key="index">
                   <div class="error-msg">{{ error.$message }}</div>
               </div>
@@ -26,23 +27,23 @@
           <!-- tel -->
           <div class="form-group" :class="{ error: v$.form.tel.$errors.length }">
               <label for="">Tel</label>
-              <input class="form-control" placeholder="tel" type="tel" v-model="v$.form.tel.$model">
+              <input class="form-control" placeholder="tel" type="tel" v-model="v$.form.tel.value.$model">
               <div class="input-errors" v-for="(error, index) of v$.form.tel.$errors" :key="index">
                   <div class="error-msg">{{ error.$message }}</div>
               </div>
           </div>
           <br>
           <!-- country -->
-          <div class="form-group" :class="{ error: v$.form.countryCode.$errors.length }">
+          <div class="form-group" :class="{ error: v$.form.country.code.$errors.length }">
               <label for="">Country</label>
-              <select class="form-control" type="countryCode" v-model="v$.form.countryCode.$model">
-                  <option value="" placeholder="select a country" >select a country</option>
+              <select class="form-control" type="countryCode" v-model="v$.form.country.code.$model">
+                  <option value="" placeholder="select a country">select a country</option>
                   <option v-for="country in countryList" 
                       v-bind:key="country.code" v-bind:value="country.code">
                       {{ country.name }}
                   </option>
               </select>
-              <div class="input-errors" v-for="(error, index) of v$.form.countryCode.$errors" :key="index">
+              <div class="input-errors" v-for="(error, index) of v$.form.country.$errors" :key="index">
                   <div class="error-msg">{{ error.$message }}</div>
               </div>
           </div>
@@ -74,10 +75,19 @@
     data(){
         return{
           form: {
-            name: "",
-            address: "",
-            tel: "",
-            countryCode: ""
+            name: { 
+                value: ""
+            },
+            address: { 
+              value: "" 
+            } ,
+            tel: { 
+              value: "" 
+            } ,
+            country: {
+                name: "",
+                code: ""
+            }
           },   
           errMessage : "",
           message : "",
@@ -88,27 +98,39 @@
         return {
             form: {
                 name: {
-                  required,
-                  maxLength: maxLength(20),
-                  alphaSpace: helpers.withMessage('You can use only alphabet and space', alphaSpace),
+                  value: {
+                    required,
+                    maxLength: maxLength(20),
+                    alphaSpace: helpers.withMessage('Name must be used alphabet or space', alphaSpace),
+                  }
                 },
                 address: {
-                  required,
-                  alphaSpaceNumComma: helpers.withMessage('You can use only alphabet, number space, comma, hyphen, slash', alphaSpaceNumComma),
+                  value: {
+                    required,
+                    maxLength: maxLength(100),
+                    alphaSpaceNumComma: helpers.withMessage('Address must be used alphabet, number, space, comma, hyphen, slash', alphaSpaceNumComma),
+                  }  
                 },
                 tel: {
-                  required,
-                  numeric,
-                  maxLength: maxLength(10),
+                  value: {
+                    required,
+                    numeric,
+                    maxLength: maxLength(10),
+                  }
                 },
-                countryCode:{
-                  required
-                },
+                country: {
+                    code: {
+                      required
+                    }
+                }
             },
         }
     },
     created() {
         this.init();
+        if (this.$v == null ) {
+          console.log("Validation is null");
+        }
     },
     methods: {
         addUser() {
@@ -116,16 +138,17 @@
           .post("http://localhost:8080/add", this.form)
           .then(
             response => {
-              this.form.name="";
-              this.form.address="";
-              this.form.tel="";
-              this.form.countryCode="";
+              this.form.name.value="";
+              this.form.address.value="";
+              this.form.tel.value="";
+              this.form.country.name="";
+              this.form.country.code="";
               this.v$.form.$reset();
               this.message = "The user have successfully created";
             } 
           ).catch(
             error => {
-                  this.message = `Failed to create user`;
+              this.message = `Failed to create user`;
             }
           );    
         },
@@ -155,10 +178,6 @@
     margin: 20px auto;
     padding: 20px;
     box-sizing: border-box;
-}
-.backto {
-    display: block;
-    width: 60%;
 }
 </style>
   

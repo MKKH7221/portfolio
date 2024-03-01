@@ -34,11 +34,11 @@ public class UserService {
     }
         
     public User update (User user) {
-        if (Objects.isNull(repository.findById(user.id()))) {
-            throw new UserNotFoundException(user.id());
+        if (Objects.isNull(repository.findById(user.id().value()))) {
+            throw new UserNotFoundException(user.id().value());
         }
         repository.update(user);
-        return repository.findById(user.id());
+        return repository.findById(user.id().value());
     }
     public void add (NewUser user) {
         repository.add(user);

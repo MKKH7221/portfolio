@@ -37,10 +37,17 @@
 .button_align {
 	text-align: right;
 }
+.error-msg {
+	color: #ba3b56;
+}
+.backto {
+  display: block;
+  width: 60%;
+}
 
 
 /* blog previews / list */
-.blog-preview {
+/* .blog-preview {
   padding: 10px 16px;
   margin: 20px 0;
   border-bottom: 1px solid #fafafa;
@@ -52,7 +59,4 @@
   font-size: 20px;
   color: #f1356d;
   margin-bottom: 8px;
-}
-.error-msg {
-	color: #ba3b56;
-}
+} */
