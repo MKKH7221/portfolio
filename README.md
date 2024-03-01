@@ -26,8 +26,6 @@ All components of the application (frontend, backend, and database) run in Docke
 - Create User
 
 ## Getting started
-This guide describes how to set up your local development environment for this project.<br>
-
 **Prerequisites**: Docker Desktop <br>
 If you do not have Docker Desktop installed, install it from the following URL: <br> https://www.docker.com/products/docker-desktop/
 
