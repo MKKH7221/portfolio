@@ -6,7 +6,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.spring_project.domain.errors.UserNotFoundException;
+import com.example.spring_project.application.errors.UserNotFoundException;
 import com.example.spring_project.domain.model.user.NewUser;
 import com.example.spring_project.domain.model.user.SearchUser;
 import com.example.spring_project.domain.model.user.User;
@@ -34,11 +34,11 @@ public class UserService {
     }
         
     public User update (User user) {
-        if (Objects.isNull(repository.findById(user.id()))) {
-            throw new UserNotFoundException(user.id());
+        if (Objects.isNull(repository.findById(user.id().value()))) {
+            throw new UserNotFoundException(user.id().value());
         }
         repository.update(user);
-        return repository.findById(user.id());
+        return repository.findById(user.id().value());
     }
     public void add (NewUser user) {
         repository.add(user);

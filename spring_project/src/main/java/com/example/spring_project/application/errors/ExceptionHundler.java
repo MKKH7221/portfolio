@@ -1,4 +1,4 @@
-package com.example.spring_project.domain.errors;
+package com.example.spring_project.application.errors;
 
 import java.nio.file.AccessDeniedException;
 
@@ -21,7 +21,7 @@ public class ExceptionHundler {
     @ExceptionHandler({UserNotFoundException.class})  
     @ResponseStatus(HttpStatus.NOT_FOUND) 
     public ErrorResponse handleEmployeeNotFoundException(UserNotFoundException e) {
-        return new ErrorResponse("userNotFound", "The user was not found.");
+        return new ErrorResponse("userNotFound", e.getMessage());
     }
 
     // 500

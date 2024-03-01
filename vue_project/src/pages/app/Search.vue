@@ -78,19 +78,19 @@
                 </tr>
             </thead>
             <tbody>   
-                <tr v-for="user in users" :key="user.id">
-                    <th scope="row">{{user.id}}</th>
-                    <td>{{user.name}}</td>
-                    <td>{{user.address}}</td>   
-                    <td>{{user.tel}}</td>
+                <tr v-for="user in users" :key="user.id.value">
+                    <th scope="row">{{user.id.value}}</th>
+                    <td>{{user.name.value}}</td>
+                    <td>{{user.address.value}}</td>   
+                    <td>{{user.tel.value}}</td>
                     <td>{{user.country.name}}</td>
                     <td>
-                        <a href="#" @click.stop.prevent="() => $router.push({ name: 'Edit', params: { id: user.id } })"  >
+                        <a href="#" @click.stop.prevent="() => $router.push({ name: 'Edit', params: { id : user.id.value } })"  >
                             <span class="material-symbols-outlined">edit</span>
                         </a>
                     </td>
                     <td> 
-                        <a href="#" @click.stop.prevent="deleteUser(user.id, user.name)" >
+                        <a href="#" @click.stop.prevent="deleteUser(user.id.value, user.name.value)" >
                             <span class="material-symbols-outlined">delete</span>
                         </a>
                     </td>
@@ -136,10 +136,10 @@
                         numeric,
                     },
                     name: {
-                        alphaSpace: helpers.withMessage('You can use only alphabet and space', alphaSpace),
+                        alphaSpace: helpers.withMessage('Name must be used alphabet or space', alphaSpace),
                     },
                     address: {
-                        alphaSpaceNumComma: helpers.withMessage('You can use only alphabet, number space, comma, hyphen, slash', alphaSpaceNumComma),
+                        alphaSpaceNumComma: helpers.withMessage('Address must be used alphabet, number, space, comma, hyphen, slash', alphaSpaceNumComma),
                     },
                     tel: {
                         numeric,
@@ -193,7 +193,7 @@
             },
             deleteUser(paramId, paramName) {
                 axios
-                .delete(`http://localhost:8080/delete/${paramId}`)
+                .delete(`http://localhost:8080/delete`, { data:{value: paramId }} )
                 .then(
                     response => {
                         this.search();

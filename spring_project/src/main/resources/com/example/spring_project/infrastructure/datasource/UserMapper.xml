@@ -7,11 +7,32 @@
 
     <resultMap id="UserResultMap" type="com.example.spring_project.domain.model.user.User">
         <constructor>
-            <arg name="id" column="id" javaType="Integer"/>
-            <arg name="name" column="name" javaType="String"/>
-            <arg name="address" column="address" javaType="String"/>
-            <arg name="tel" column="tel" javaType="String"/>
+            <arg name="id" resultMap="idResultMap" javaType="com.example.spring_project.domain.model.user.Id"/>
+            <arg name="name" resultMap="nameResultMap" javaType="com.example.spring_project.domain.model.user.Name"/>
+            <arg name="address" resultMap="addressResultMap" javaType="com.example.spring_project.domain.model.user.Address"/>
+            <arg name="tel" resultMap="telResultMap" javaType="com.example.spring_project.domain.model.user.Tel"/>
             <arg name="country" resultMap="countryResultMap" javaType="com.example.spring_project.domain.model.country.Country"/>
+        </constructor>
+    </resultMap>
+    
+    <resultMap id="idResultMap" type="com.example.spring_project.domain.model.user.Id">
+        <constructor>
+            <arg name="value" column="id" javaType="Integer"/>
+        </constructor>
+    </resultMap>
+    <resultMap id="nameResultMap" type="com.example.spring_project.domain.model.user.Name">
+        <constructor>
+            <arg name="value" column="name" javaType="String"/>
+        </constructor>
+    </resultMap>
+    <resultMap id="addressResultMap" type="com.example.spring_project.domain.model.user.Address">
+        <constructor>
+            <arg name="value" column="address" javaType="String"/>
+        </constructor>
+    </resultMap>
+    <resultMap id="telResultMap" type="com.example.spring_project.domain.model.user.Tel">
+        <constructor>
+            <arg name="value" column="tel" javaType="String"/>
         </constructor>
     </resultMap>
     <resultMap id="countryResultMap" type="com.example.spring_project.domain.model.country.Country">
@@ -83,12 +104,12 @@
         UPDATE 
             user 
         SET 
-            name = #{name}, 
-            address = #{address}, 
-            tel = #{tel},
+            name = #{name.value}, 
+            address = #{address.value}, 
+            tel = #{tel.value},
             country = #{country.code}
         WHERE 
-            id = #{id}
+            id = #{id.value}
     </update>
     <insert id="add">
         INSERT INTO user(
@@ -98,10 +119,10 @@
             country
         ) 
         VALUES (
-            #{name},
-            #{address}, 
-            #{tel} ,
-            #{countryCode}
+            #{name.value},
+            #{address.value}, 
+            #{tel.value} ,
+            #{country.code}
         ) 
     </insert>
     <delete id="delete">
