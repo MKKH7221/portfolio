@@ -1,4 +1,4 @@
-package com.example.spring_project.domain.errors;
+package com.example.spring_project.application.errors;
 
 public class UserNotFoundException extends RuntimeException {
 
