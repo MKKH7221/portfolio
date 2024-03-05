@@ -1,5 +1,5 @@
 CREATE DATABASE IF NOT EXISTS testdb;
-DROP TABLE IF EXISTS testdb.use;
+DROP TABLE IF EXISTS testdb.user;
 
 CREATE TABLE testdb.user(
         id              integer  AUTO_INCREMENT,
